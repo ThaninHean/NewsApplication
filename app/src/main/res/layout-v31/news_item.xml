@@ -1,0 +1,76 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    app:cardCornerRadius="10dp"
+    android:elevation="5dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:background="@android:color/darker_gray">
+
+    <!-- Margin below card -->
+
+    <!-- LinearLayout to contain Image and Text -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- News Image -->
+        <ImageView
+            android:id="@+id/newsImageView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/nin"
+            android:layout_marginBottom="12dp"
+            android:clipToOutline="true"
+            android:outlineProvider="background" /> <!-- Rounded corners for image -->
+
+        <!-- News Title -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="News Title"
+            android:textSize="18sp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="3dp"/>
+
+        <!-- Published Date -->
+        <TextView
+            android:id="@+id/publishedAtTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="Published on: Jan 1, 2025"
+            android:textSize="14sp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="3dp"/>
+
+        <!-- News Description -->
+        <TextView
+            android:id="@+id/descriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="This is the description of the news article. It gives more details about the content."
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="8dp"/>
+
+
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+
