@@ -2,14 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D5DADB">
+    android:background="#F5E3EBEB">
 
     <!-- AppBarLayout for collapsing effect -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#B7D5DADB"
+        android:background="#F5E3EBEB"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:elevation="4dp">
 
@@ -25,7 +25,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#B7D5DADB"
                 app:layout_collapseMode="parallax">
 
                 <TextView
@@ -51,12 +50,13 @@
                     android:drawableStart="@drawable/search"
                     android:drawablePadding="8dp"
                     android:hint="Search news..."
+                    android:textColorHint="@color/onPrimary_dark"
                     android:imeOptions="actionDone"
-                    android:inputType="text"
+                    android:inputType="text|number|datetime"
                     android:paddingStart="5dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="10dp"
-                    android:textColor="@color/background_light"
+                    android:textColor="@color/onPrimary_dark"
                     android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -98,7 +98,8 @@
         android:gravity="center"
         android:text="No results found"
         android:textSize="16sp"
-        android:textColor="@android:color/black"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:textColor="@android:color/darker_gray"
         android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
