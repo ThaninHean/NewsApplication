@@ -24,9 +24,6 @@ public class WebViewActivity extends AppCompatActivity {
         backBtn.setOnClickListener(v -> onBackPressed());
         webView.setWebViewClient(new WebViewClient()); // Prevent opening browser
 
-        // Enable JavaScript (if needed)
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
 
         // Load the URL passed from the intent
         String url = getIntent().getStringExtra("url");
