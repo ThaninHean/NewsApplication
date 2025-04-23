@@ -103,18 +103,14 @@ public class HomeFragment extends Fragment {
                             .setDuration(300)
                             .start();
                     isSearchBarVisible = false;
-                    // Reset background to transparent when hidden
-                    searchContainer.setBackgroundColor(Color.TRANSPARENT);
                 } else if (dy < -10 && !isSearchBarVisible) {
                     // Scroll up - show search bar smoothly
                     searchContainer.animate()
                             .translationY(0)
                             .alpha(1f)
-                            .setDuration(300)
+                            .setDuration(100)
                             .start();
                     isSearchBarVisible = true;
-                    // Change background color when visible
-                    searchContainer.setBackgroundColor(getResources().getColor(R.color.background_light));
                 }
             }
         });
