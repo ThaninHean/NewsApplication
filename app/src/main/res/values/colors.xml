@@ -5,7 +5,7 @@
     <color name="surface_light">#F5F5F5</color> <!-- Soft Gray Background -->
     <color name="onSurface_light">#212121</color> <!-- Almost Black Text -->
     <color name="secondary_light">#03DAC6</color> <!-- Teal Accent -->
-    <color name="background_light">#FFFFFF</color> <!-- Pure White Background -->
+    <color name="background_light">#00FFFFFF</color> <!-- Pure White Background -->
     <color name="error_light">#B00020</color> <!-- Dark Red for Errors -->
 
     <!-- 🌙 Dark Mode Colors -->
