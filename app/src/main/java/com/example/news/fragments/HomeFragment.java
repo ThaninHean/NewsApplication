@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.news.NewsViewModel;
 import com.example.news.R;
 import com.example.news.adapter.NewsAdapter;
 import com.example.news.api.NewsApiService;
@@ -33,34 +34,34 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import androidx.lifecycle.ViewModelProvider;
 public class HomeFragment extends Fragment {
-
-    private RecyclerView recyclerView;
     private ConstraintLayout searchContainer;
+    private RecyclerView recyclerView;
     private EditText searchEditText;
     private ProgressBar progressBar;
     private TextView noResultFound;
     private NewsAdapter newsAdapter;
     private final List<NewsArticle> newsList = new ArrayList<>();
-    private static final String API_KEY = "3ca0ba20aeea428881d1be0af67d8f11";
+    private static final String API_KEY = "41ae75be90bc42878fc1d3225383ba9a";
     private NewsApiService apiService;
+    private NewsViewModel newsViewModel;
+    private String savedQuery = "";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_fragment, container, false);
-
-        // Initialize all views
+        searchContainer = view.findViewById(R.id.searchContainer);
         initViews(view);
+        setupViewModel();          // ✅ Add this
         setupRecyclerView();
-        setupScrollAnimation(); // moved here after recyclerView is initialized
         fetchNews();
+        setupScrollAnimation();
 
-        // Add search listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() >= 1) {
@@ -72,21 +73,6 @@ public class HomeFragment extends Fragment {
         });
 
         return view;
-    }
-
-    private void initViews(View view) {
-        searchContainer = view.findViewById(R.id.searchContainer);
-        searchEditText = view.findViewById(R.id.searchEditText);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        progressBar = view.findViewById(R.id.progressBar);
-        noResultFound = view.findViewById(R.id.noResults);
-        apiService = RetrofitClient.getRetrofitInstance().create(NewsApiService.class);
-    }
-
-    private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        newsAdapter = new NewsAdapter(getContext(), newsList);
-        recyclerView.setAdapter(newsAdapter);
     }
 
     private void setupScrollAnimation() {
@@ -108,7 +94,7 @@ public class HomeFragment extends Fragment {
                     searchContainer.animate()
                             .translationY(0)
                             .alpha(1f)
-                            .setDuration(100)
+                            .setDuration(300)
                             .start();
                     isSearchBarVisible = true;
                 }
@@ -117,6 +103,23 @@ public class HomeFragment extends Fragment {
     }
 
 
+    private void initViews(View view) {
+        searchEditText = view.findViewById(R.id.searchEditText);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        progressBar = view.findViewById(R.id.progressBar);
+        noResultFound = view.findViewById(R.id.noResults);
+        apiService = RetrofitClient.getRetrofitInstance().create(NewsApiService.class);
+    }
+
+    private void setupViewModel() {
+        newsViewModel = new ViewModelProvider(requireActivity()).get(NewsViewModel.class); // ✅ Properly get ViewModel
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        newsAdapter = new NewsAdapter(getContext(), newsList, newsViewModel); // ✅ Pass ViewModel to adapter
+        recyclerView.setAdapter(newsAdapter);
+    }
 
     private void fetchNews() {
         toggleLoading(true);
@@ -174,5 +177,19 @@ public class HomeFragment extends Fragment {
     private void toggleResults(boolean hasResults) {
         recyclerView.setVisibility(hasResults ? View.VISIBLE : View.GONE);
         noResultFound.setVisibility(hasResults ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        savedQuery = searchEditText.getText().toString();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (savedQuery != null && !savedQuery.equals("null")) {
+            searchEditText.setText(savedQuery);
+        }
     }
 }
