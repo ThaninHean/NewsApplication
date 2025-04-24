@@ -25,13 +25,12 @@ import java.util.List;
 
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
 
-    private List<NewsArticle> newsList;
-    private List<NewsArticle> newsListFull;
-    private Context context;
-    private NewsViewModel newsViewModel;
+    private final List<NewsArticle> newsList;
+    private final List<NewsArticle> newsListFull;
+    private final Context context;
+    private final NewsViewModel newsViewModel;
 
-
-    // Updated constructor with ViewModel
+    // Constructor
     public NewsAdapter(Context context, List<NewsArticle> newsList, NewsViewModel newsViewModel) {
         this.context = context;
         this.newsList = newsList;
@@ -50,53 +49,52 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     public void onBindViewHolder(@NonNull NewsViewHolder holder, int position) {
         NewsArticle article = newsList.get(position);
 
+        // Bind data to the views
         holder.titleTextView.setText(article.getTitle());
         holder.publishedAtTextView.setText(article.getPublishedAt());
         holder.descriptionTextView.setText(article.getDescription());
 
+        // Load image with Glide
         Glide.with(context)
                 .load(article.getUrlToImage())
                 .placeholder(R.drawable.loading)
                 .error(R.drawable.loading)
                 .into(holder.newsImageView);
 
-        // Open news in WebView
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, WebViewActivity.class);
-            intent.putExtra("url", article.getUrl());
-            context.startActivity(intent);
-        });
+        // Set item click listener to open article in WebView
+        holder.itemView.setOnClickListener(v -> openWebView(article));
 
-        // Save news to Room when btnSaved is clicked
-        holder.btnSaved.setOnClickListener(v -> {
-            NewsArticle saveItem = newsList.get(holder.getBindingAdapterPosition());
+        // Set save button click listener
+        holder.btnSaved.setOnClickListener(v -> saveToFavorites(holder, article));
+    }
 
-            // Null check to avoid crashing
-            if (article.getUrl() == null || article.getUrlToImage() == null) {
-                Toast.makeText(context, "This item cannot be saved (missing URL or image)", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    private void openWebView(NewsArticle article) {
+        Intent intent = new Intent(context, WebViewActivity.class);
+        intent.putExtra("url", article.getUrl());
+        context.startActivity(intent);
+    }
 
-            // Map API model to Room model
-            NewsItem newsItem = new NewsItem(
-                    article.getUrl(), // Use URL as primary key
-                    article.getTitle(),
-                    article.getDescription(),
-                    article.getUrlToImage(),
-                    article.getPublishedAt()
-            );
+    private void saveToFavorites(NewsViewHolder holder, NewsArticle article) {
+        if (article.getUrl() == null || article.getUrlToImage() == null) {
+            Toast.makeText(context, "This item cannot be saved (missing URL or image)", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            // Log for debugging
-            Log.d("SaveNews", "Saving item: \nTitle: " + article.getTitle() +
-                    "\nURL: " + article.getUrl() +
-                    "\nImage URL: " + article.getUrlToImage());
+        NewsItem newsItem = new NewsItem(
+                article.getUrl(),
+                article.getTitle(),
+                article.getDescription(),
+                article.getUrlToImage(),
+                article.getPublishedAt()
+        );
 
-            // Save to DB
-            newsViewModel.insert(newsItem);
-            Toast.makeText(context, "Saved to favorites", Toast.LENGTH_SHORT).show();
-        });
+        Log.d("SaveNews", "Saving item: \nTitle: " + article.getTitle() +
+                "\nURL: " + article.getUrl() +
+                "\nImage URL: " + article.getUrlToImage());
 
-
+        // Save to database
+        newsViewModel.insert(newsItem);
+        Toast.makeText(context, "Saved to favorites", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -118,4 +116,3 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         }
     }
 }
-

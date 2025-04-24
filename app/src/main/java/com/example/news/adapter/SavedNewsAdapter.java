@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Delete;
 
 import com.bumptech.glide.Glide;
 import com.example.news.NewsViewModel;
@@ -29,10 +28,12 @@ public class SavedNewsAdapter extends RecyclerView.Adapter<SavedNewsAdapter.Save
     private List<NewsItem> savedNewsList = new ArrayList<>();
     private NewsViewModel newsViewModel;
 
+    // Constructor
     public SavedNewsAdapter(Context context) {
         this.context = context;
     }
 
+    // Set the list of saved news
     public void setNewsList(List<NewsItem> newsList) {
         this.savedNewsList = newsList;
         notifyDataSetChanged();
@@ -49,10 +50,12 @@ public class SavedNewsAdapter extends RecyclerView.Adapter<SavedNewsAdapter.Save
     public void onBindViewHolder(@NonNull SavedNewsViewHolder holder, int position) {
         NewsItem item = savedNewsList.get(position);
 
+        // Bind data to the views
         holder.titleTextView.setText(item.getTitle());
         holder.publishedAtTextView.setText(item.getPublishedAt());
         holder.descriptionTextView.setText(item.getDescription());
 
+        // Load image with Glide, using a placeholder if image URL is empty
         if (item.getImageUrl() == null || item.getImageUrl().isEmpty()) {
             Glide.with(context)
                     .load(R.drawable.loading) // Default image
@@ -65,55 +68,54 @@ public class SavedNewsAdapter extends RecyclerView.Adapter<SavedNewsAdapter.Save
                     .into(holder.newsImageView);
         }
 
+        // Set click listener to open the news article in WebView
+        holder.itemView.setOnClickListener(v -> openWebView(item));
 
-        holder.itemView.setOnClickListener(v -> {
-            String url = item.getUrl();
-            Intent intent = new Intent(context, WebViewActivity.class);
-            intent.putExtra("url", item.getUrl());
-            context.startActivity(intent);
-        });
-
-        // Handle the delete button click
-        holder.btnDelete.setOnClickListener(v -> {
-            int currentPosition = holder.getBindingAdapterPosition(); // use this instead of `position`
-
-            if (currentPosition != RecyclerView.NO_POSITION && newsViewModel != null) {
-                NewsItem itemToDelete = savedNewsList.get(currentPosition);
-
-                // Delete from database
-                newsViewModel.deleteNews(itemToDelete);
-
-                // Remove from list and update UI
-                savedNewsList.remove(currentPosition);
-                notifyItemRemoved(currentPosition);
-                notifyItemRangeChanged(currentPosition, savedNewsList.size());
-
-                Log.d("SavedNewsAdapter", "Deleted item at position: " + currentPosition);
-                Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.e("SavedNewsAdapter", "Invalid position or ViewModel is null.");
-            }
-        });
-
-
-
-
+        // Set delete button listener
+        holder.btnDelete.setOnClickListener(v -> deleteNews(holder, item));
     }
 
+    // Open WebViewActivity with the article URL
+    private void openWebView(NewsItem item) {
+        Intent intent = new Intent(context, WebViewActivity.class);
+        intent.putExtra("url", item.getUrl());
+        context.startActivity(intent);
+    }
 
+    // Handle deleting news item from the saved list
+    private void deleteNews(SavedNewsViewHolder holder, NewsItem item) {
+        int currentPosition = holder.getBindingAdapterPosition(); // Use binding adapter position instead of position
+
+        if (currentPosition != RecyclerView.NO_POSITION && newsViewModel != null) {
+            // Delete from database
+            newsViewModel.deleteNews(item);
+
+            // Remove from list and update UI
+            savedNewsList.remove(currentPosition);
+            notifyItemRemoved(currentPosition);
+            notifyItemRangeChanged(currentPosition, savedNewsList.size());
+
+            Log.d("SavedNewsAdapter", "Deleted item at position: " + currentPosition);
+            Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.e("SavedNewsAdapter", "Invalid position or ViewModel is null.");
+        }
+    }
 
     @Override
     public int getItemCount() {
         return savedNewsList.size();
     }
 
+    // Set the NewsViewModel instance
     public void setNewsViewModel(NewsViewModel newsViewModel) {
         this.newsViewModel = newsViewModel;
     }
 
+    // ViewHolder class to hold the views for each news item
     public static class SavedNewsViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, descriptionTextView, publishedAtTextView;
-        ImageView newsImageView,btnDelete;
+        ImageView newsImageView, btnDelete;
 
         public SavedNewsViewHolder(@NonNull View itemView) {
             super(itemView);

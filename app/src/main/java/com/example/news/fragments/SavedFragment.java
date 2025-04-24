@@ -11,9 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 
 import com.example.news.NewsViewModel;
 import com.example.news.R;
@@ -30,25 +28,29 @@ public class SavedFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.saved_fragment, container, false);
-        emptyTextView = view.findViewById(R.id.emptyTextView);
 
-        // Initialize the ViewModel
+        // Initialize views
+        emptyTextView = view.findViewById(R.id.emptyTextView);
+        recyclerView = view.findViewById(R.id.savedRecyclerView);
+
+        // Initialize ViewModel
         newsViewModel = new ViewModelProvider(this).get(NewsViewModel.class);
 
-        recyclerView = view.findViewById(R.id.savedRecyclerView);
+        // Set up RecyclerView with GridLayoutManager
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
+        // Initialize the adapter and set it to the RecyclerView
         adapter = new SavedNewsAdapter(getContext());
         recyclerView.setAdapter(adapter);
 
         // Pass the ViewModel to the adapter
-        adapter.setNewsViewModel(newsViewModel);  // <-- Add this line
+        adapter.setNewsViewModel(newsViewModel);
 
-        // Observe saved news items and update the adapter
+        // Observe saved news items and update the UI accordingly
         newsViewModel.getSavedNews().observe(getViewLifecycleOwner(), newsItems -> {
             adapter.setNewsList(newsItems);
 
-            // Handle empty view visibility
+            // Handle empty state visibility
             if (newsItems.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyTextView.setVisibility(View.VISIBLE);
@@ -60,5 +62,4 @@ public class SavedFragment extends Fragment {
 
         return view;
     }
-
 }

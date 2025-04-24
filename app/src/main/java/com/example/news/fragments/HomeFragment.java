@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,16 +35,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import androidx.lifecycle.ViewModelProvider;
 public class HomeFragment extends Fragment {
+
+    private static final String API_KEY = "41ae75be90bc42878fc1d3225383ba9a";
+
     private ConstraintLayout searchContainer;
     private RecyclerView recyclerView;
     private EditText searchEditText;
     private ProgressBar progressBar;
     private TextView noResultFound;
+
     private NewsAdapter newsAdapter;
     private final List<NewsArticle> newsList = new ArrayList<>();
-    private static final String API_KEY = "41ae75be90bc42878fc1d3225383ba9a";
     private NewsApiService apiService;
     private NewsViewModel newsViewModel;
     private String savedQuery = "";
@@ -52,16 +55,40 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_fragment, container, false);
-        searchContainer = view.findViewById(R.id.searchContainer);
         initViews(view);
-        setupViewModel();          // ✅ Add this
+        setupViewModel();
         setupRecyclerView();
-        fetchNews();
+        setupSearchListener();
         setupScrollAnimation();
+        fetchNews();
 
+        return view;
+    }
+
+    private void initViews(View view) {
+        searchContainer = view.findViewById(R.id.searchContainer);
+        searchEditText = view.findViewById(R.id.searchEditText);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        progressBar = view.findViewById(R.id.progressBar);
+        noResultFound = view.findViewById(R.id.noResults);
+        apiService = RetrofitClient.getRetrofitInstance().create(NewsApiService.class);
+    }
+
+    private void setupViewModel() {
+        newsViewModel = new ViewModelProvider(requireActivity()).get(NewsViewModel.class);
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        newsAdapter = new NewsAdapter(getContext(), newsList, newsViewModel);
+        recyclerView.setAdapter(newsAdapter);
+    }
+
+    private void setupSearchListener() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() >= 1) {
@@ -71,8 +98,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        return view;
     }
 
     private void setupScrollAnimation() {
@@ -82,43 +107,30 @@ public class HomeFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 10 && isSearchBarVisible) {
-                    // Scroll down - hide search bar smoothly
-                    searchContainer.animate()
-                            .translationY(-searchContainer.getHeight())
-                            .alpha(0f)
-                            .setDuration(300)
-                            .start();
+                    hideSearchBar();
                     isSearchBarVisible = false;
                 } else if (dy < -10 && !isSearchBarVisible) {
-                    // Scroll up - show search bar smoothly
-                    searchContainer.animate()
-                            .translationY(0)
-                            .alpha(1f)
-                            .setDuration(300)
-                            .start();
+                    showSearchBar();
                     isSearchBarVisible = true;
                 }
             }
         });
     }
 
-
-    private void initViews(View view) {
-        searchEditText = view.findViewById(R.id.searchEditText);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        progressBar = view.findViewById(R.id.progressBar);
-        noResultFound = view.findViewById(R.id.noResults);
-        apiService = RetrofitClient.getRetrofitInstance().create(NewsApiService.class);
+    private void hideSearchBar() {
+        searchContainer.animate()
+                .translationY(-searchContainer.getHeight())
+                .alpha(0f)
+                .setDuration(300)
+                .start();
     }
 
-    private void setupViewModel() {
-        newsViewModel = new ViewModelProvider(requireActivity()).get(NewsViewModel.class); // ✅ Properly get ViewModel
-    }
-
-    private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        newsAdapter = new NewsAdapter(getContext(), newsList, newsViewModel); // ✅ Pass ViewModel to adapter
-        recyclerView.setAdapter(newsAdapter);
+    private void showSearchBar() {
+        searchContainer.animate()
+                .translationY(0)
+                .alpha(1f)
+                .setDuration(300)
+                .start();
     }
 
     private void fetchNews() {
